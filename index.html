@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+  #siri-container{
+    height: 100px;
+    width: 800px;
+    background: #000;
+  }
+  #txt{
+    font-size: 100px;
+    text-align: center;
+  }
+  </style>
+</head>
+<body>
+    <div id="siri-container"></div>
+   <div id=txt></div>
+</body>
+</html>
+<script src="https://unpkg.com/siriwave/dist/siriwave.js"></script>
+<script src="annyang.min.js"></script>
+
+<script>
+  //https://www.npmjs.com/package/siriwave
+    var siriWave = new SiriWave({
+        container: document.getElementById('siri-container'),
+        style:'ios9',
+        speed: 0.1,
+        amplitude:0.01,//波纹高度
+        autostart: true,
+    });
+    
+
+  var getVoice = function filterVoice(q){
+    q = q || "Veena"; // Indian Voice ;)
+    return (window.speechSynthesis.getVoices()
+            .filter(function(v) {
+                    return v.name.toUpperCase() === q.toUpperCase() || 
+                           v.lang.toUpperCase() === q.toUpperCase()
+                    })
+           )[0];
+}
+
+// 语音合成
+var talk = function (msg, voiceType){
+    var person = new SpeechSynthesisUtterance(msg);
+    person.voice = getVoice(voiceType);
+    window.speechSynthesis.speak(person);
+}
+
+
+talk.names = window.speechSynthesis.getVoices()
+             .map(function(s) {
+                return s.name;
+             });
+
+talk.langs = window.speechSynthesis.getVoices()
+             .map(function(s) {
+                return s.lang;
+             }).reduce(function(prev, cur) {
+                return (prev.indexOf(cur) < 0) ? prev.concat([cur]) : prev;
+             }, []);
+document.onclick=function(){
+  console.log('speark')
+  talk('十八哥早上好','zh-CN')
+  //tt()
+}
+
+function tt(){
+  setTimeout(()=>{
+    talk('show me the money')
+
+  },3000)
+}
+setTimeout(()=>{
+  initSound();
+},400)
+
+function initSound(){
+ // https://github.com/TalAter/annyang/blob/master/docs/FAQ.md#which-browsers-are-supported
+  if (annyang) {
+  // Let's define our first command. First the text we expect, and then the function it should call
+  var commands = {
+    'hello': function() {
+      console.log('....')
+    }
+  };
+
+  // Add our commands to annyang
+  annyang.addCommands(commands);
+  annyang.setLanguage('zh-CN') //zh-CN')
+//   annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
+//   console.log(userSaid); // sample output: 'hello'
+//   console.log(commandText); // sample output: 'hello (there)'
+//   console.log(phrases); // sample output: ['hello', 'halo', 'yellow', 'polo', 'hello kitty']
+// });
+annyang.addCallback('error', function(phrases) {
+  console.log("error.."+phrases);
+});
+annyang.addCallback('errorNetwork', function(phrases) {
+  //talk('网络连接已断开','zh-CN')
+  console.log("errorNetwork.."+phrases);
+});
+annyang.addCallback('start', function(phrases) {
+  console.log("start..");
+});
+annyang.addCallback('soundstart', function(phrases) {
+  console.log("soundstart..");
+  siriWave.setAmplitude(1);
+  
+});
+annyang.addCallback('result', function(phrases) {
+  document.getElementById('txt').innerText=phrases[0];
+  //talk(phrases[0],'zh-CN')
+  console.log("stop");
+  console.log("I think the user said: ", phrases[0]);
+  console.log("But then again, it could be any of the following: ", phrases);
+  siriWave.setAmplitude(0.01);
+});
+
+annyang.addCallback('resultNoMatch', function(phrases) {
+  console.log("resultNoMatch");
+  
+});
+  // Start listening. You can call this here, or attach this call to an event, button, etc.
+  annyang.start({continuous:false });
+}
+}
+
+// 南非荷兰语 af
+// 巴斯克 eu
+// 保加利亚语 bg
+// 加泰罗尼亚 ca
+// 阿拉伯语（埃及） ar-EG
+// 阿拉伯语（约旦） ar-JO
+// 阿拉伯语（科威特） ar-KW
+// 阿拉伯语（黎巴嫩 ar-LB
+// 阿拉伯语（卡塔尔） ar-QA
+// 阿拉伯语（阿联酋） ar-AE
+// Arabic（摩洛哥） ar-MA
+// 阿拉伯语（伊拉克 ar-IQ
+// Arabic（阿尔及利亚） ar-DZ
+// 阿拉伯语（巴林） ar-BH
+// 阿拉伯语（Lybia） ar-LY
+// 阿拉伯语（阿曼） ar-OM
+// Arabic（沙特阿拉伯） ar-SA
+// 阿拉伯语（突尼斯） ar-TN
+// 阿拉伯语（也门） ar-YE
+// 捷克 cs
+// 荷兰人 nl-NL
+// 英语（澳大利亚） en-AU
+// 英语（加拿大） en-CA
+// 英文（印度） en-IN
+// 英语（新西兰） en-NZ
+// 英语（南非） en-ZA
+// 英国（UK） en-GB
+// 英语（美国） en-US
+// 芬兰 fi
+// 法国 fr-FR
+// 加利西亚 gl
+// 德语 de-DE
+// 希腊语 el-GR
+// 希伯来语 he
+// 匈牙利 hu
+// 冰岛的 is
+// 意大利 it-IT
+// 印度尼西亚 id
+// 日本 ja
+// 朝鲜的 ko
+// 拉丁 la
+// 普通话 zh-CN
+// 传统台湾 zh-TW
+// 简体中文zh-CN ?
+// 简化香港 zh-HK
+// 粤语（繁体香港） zh-yue
+// 马来西亚 ms-MY
+// 挪威 no-NO
+// 抛光 pl
+// 猪拉丁文 xx-piglatin
+// 葡萄牙语 pt-PT
+// 葡萄牙语（巴西） pt-BR
+// 罗马尼亚 ro-RO
+// 俄语 ru
+// 塞尔维亚 sr-SP
+// 斯洛伐克 sk
+// 西班牙语 es-AR
+// 西班牙语（玻利维亚） es-BO
+// 西班牙语（智利） es-CL
+// Spanish（哥伦比亚） es-CO
+// 西班牙语（哥斯达黎加） es-CR
+// Spanish（多米尼加共和国） es-DO
+// 西班牙语（厄瓜多尔） es-EC
+// 西班牙语（萨尔瓦多） es-SV
+// 西班牙语（危地马拉） es-GT
+// 西班牙文（洪都拉斯） es-HN
+// 西班牙语 es-MX
+// 西班牙语（尼加拉瓜） es-NI
+// 西班牙语（Panama） es-PA
+// 西班牙语（巴拉圭） es-PY
+// 西班牙语（秘鲁） es-PE
+// 西班牙语（波多黎各） es-PR
+// 西班牙语（西班牙 es-ES
+// 西班牙语（美国） es-US
+// 西班牙语（乌拉圭） es-UY
+// 西班牙语（委内瑞拉） es-VE
+// 瑞典 sv-SE
+// 土耳其 tr
+// 祖鲁 zu
+// // Initialize polyfill
+// var fallbackSpeechSynthesis = window.getSpeechSynthesis();
+// var fallbackSpeechSynthesisUtterance = window.getSpeechSynthesisUtterance();
+
+// var u = new fallbackSpeechSynthesisUtterance('Hello World');
+// u.lang = 'en-US';
+// u.volume = 1.0;
+// u.rate = 1.0;
+// u.onend = function(event) { console.log('Finished in ' + event.elapsedTime + ' seconds.'); };
+// fallbackSpeechSynthesis.speak(u);
+</script>
